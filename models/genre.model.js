@@ -19,5 +19,6 @@ function validateGenre(genre){
     return error ? error.details[0].message : null;
 }
 
+module.exports.genreSchema = genreSchema;
 module.exports.Genre = Genre;
 module.exports.validateGenre = validateGenre;
