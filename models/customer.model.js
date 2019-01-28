@@ -4,11 +4,15 @@ const Joi = require('joi');
 const customerSchema = mongoose.Schema({
     name: {
        type: String,
-       required: true
+       required: true,
+       min: 3,
+       max: 255
     },
     phone: {
-        type: Number,
-        required: true
+        type: String,
+        required: true,
+        min: 3,
+        max: 10
     },
     isGold: {
         type: Boolean,
@@ -20,9 +24,9 @@ const Customer = mongoose.model('Customer', customerSchema);
 
 function validateCustomer(c){
     const schema = Joi.object().keys({
-        name: Joi.string().min(3).required(),
-        phone: Joi.number().required(),
-        isGold: Joi.boolean().default(false)
+        name: Joi.string().min(3).max(255).required(),
+        phone: Joi.number().min(3).max(10).required(),
+        isGold: Joi.boolean()
     });
 
     const { error } = Joi.validate(c, schema);
