@@ -1,5 +1,7 @@
 const express = require('express');
 const { Genre, validateGenre } = require('../models/genre.model');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/isAdmin');
 
 const router = express.Router();
 
@@ -15,7 +17,7 @@ router.get('/:id', async (req, res) => {
     res.send(g);
 });
 
-router.post('/', (req, res) => {
+router.post('/', auth, (req, res) => {
     let err = validateGenre(req.body);
     if(err) return res.status(400).send(err);
 
@@ -34,7 +36,7 @@ router.put('/:id', async (req, res) => {
     .then((_g) => res.send(_g));
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
     let g = await Genre.findById(req.params.id);
     if(!g) return res.status(404).send('genre with selected id doesn\'t exist');
 
