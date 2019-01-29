@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
 
-const customerSchema = mongoose.Schema({
+module.exports.Customer = mongoose.model('Customer', new  mongoose.Schema({
     name: {
        type: String,
        required: true,
@@ -18,20 +18,15 @@ const customerSchema = mongoose.Schema({
         type: Boolean,
         default: false
     }
-});
+}));
 
-const Customer = mongoose.model('Customer', customerSchema);
-
-function validateCustomer(c){
+module.exports.validate = (customer) => {
     const schema = Joi.object().keys({
         name: Joi.string().min(3).max(255).required(),
         phone: Joi.string().min(3).max(15).required(),
         isGold: Joi.boolean()
     });
 
-    const { error } = Joi.validate(c, schema);
+    const { error } = Joi.validate(customer, schema);
     return error ? error.details[0].message : null;
 }
-
-module.exports.Customer = Customer;
-module.exports.validateCustomer = validateCustomer;

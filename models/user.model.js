@@ -1,6 +1,6 @@
+const mongoose = require('mongoose');
 const Joi = require('joi');
 const PasswordComplexity = require('joi-password-complexity');
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const config = require('config');
  
@@ -14,7 +14,7 @@ const complexityOptions = {
   requirementCount: 2,
 }
 
-const userSchema = new mongoose.Schema({
+const _userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -40,13 +40,13 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-userSchema.methods.generateAuthToken = function(){
+_userSchema.methods.genAuthToken = function(){
     return jwt.sign({ _id: this._id, isAdmin: this.isAdmin }, config.get('jwtPrivateKey'));
 }
 
-const User = mongoose.model('User', userSchema);
+module.exports.User = mongoose.model('User', _userSchema);
 
-function validateUser(u){
+module.exports.validate = (user) => {
     const schema = Joi.object().keys({
         name: Joi.string().min(5).max(50).required(),
         email: Joi.string().min(5).max(255).required().email(),
@@ -54,15 +54,14 @@ function validateUser(u){
         isAdmin: Joi.boolean()
     });
 
-    let { error } = Joi.validate(u, schema);
+    let { error } = Joi.validate(user, schema);
     if(!error)
         Joi.validate(u.password, new PasswordComplexity(complexityOptions), (err, value) => {
             error = err;
         });
     return error ? error.details[0].message : null;
 }
-
-function validateAuth(u){
+module.exports.validateAuth = (user) => {
     const schema = Joi.object().keys({
         email: Joi.string().min(5).max(255).required().email(),
         password: Joi.string().required()
@@ -75,9 +74,5 @@ function validateAuth(u){
         });
     return error ? error.details[0].message : null;
 }
-
-module.exports.User = User;
-module.exports.validateUser = validateUser;
-module.exports.validateAuth = validateAuth;
 
 // Information Expert Principle

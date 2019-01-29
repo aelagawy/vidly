@@ -1,7 +1,7 @@
 const express = require('express');
-const { User, validateUser } = require('../models/user.model');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
+const { User, validate } = require('../models/user.model');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.get('/me', auth, async(req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    let err = validateUser(req.body);
+    let err = validate(req.body);
     if(err) return res.status(400).send(err);
 
     let u = await User.findOne({ email: req.body.email });
@@ -22,10 +22,10 @@ router.post('/', async (req, res) => {
 
     const salt = await bcrypt.genSalt(11);
     u.password = await bcrypt.hash(u.password, salt);
-
-    u.save().then(() => {
-        res.header('x-auth-token',  u.generateAuthToken()).send(_.pick(u, ['_id', 'name', 'email']));
-    });
+ 
+    await u.save();
+    
+    res.header('x-auth-token', u.genAuthToken()).send(_.pick(u, ['_id', 'name', 'email']));
 });
 
 module.exports = router;

@@ -1,22 +1,23 @@
 const express = require('express');
-const { Rental, validateRental } = require('../models/rental.model');
-const { Movie } = require('../models/movie.model');
-const { Customer } = require('../models/customer.model');
 const mongoose = require('mongoose');
 const Fawn = require('fawn');
+const { Rental, validate } = require('../models/rental.model');
+const { Movie } = require('../models/movie.model');
+const { Customer } = require('../models/customer.model');
 
-Fawn.init(mongoose);
+Fawn.init(mongoose); // allow task transaction
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    const rs = await Rental.find().sort('-dateOut');
-    if(!rs || rs.length < 1) return res.status(404).send('no rentals to display !');
-    res.send(rs);
+    const rentals = await Rental.find().sort('-dateOut');
+    if(!rentals || rentals.length < 1) return res.status(404).send('no rentals to display !');
+
+    res.send(rentals);
 });
 
 router.post('/', async (req, res) => {
-    const err = validateRental(req.body);
+    const err = validate(req.body);
     if(err) return res.status(400).send(err);
 
     const c = await Customer.findById(req.body.customerId);
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
 
     if(m.numberInStock == 0) return res.status(400).send('movie not in stock !');
 
-    let r = new Rental({ 
+    const r = new Rental({ 
        customer:{
            _id: req.body.customerId,
            name: c.name,

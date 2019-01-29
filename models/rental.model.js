@@ -1,7 +1,7 @@
-const Joi = require('joi');
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
-const Rental = mongoose.model('Rental', new mongoose.Schema({
+module.exports.Rental = mongoose.model('Rental', new mongoose.Schema({
     customer: {
         type: new mongoose.Schema({
             name: {
@@ -55,15 +55,12 @@ const Rental = mongoose.model('Rental', new mongoose.Schema({
     }
 }));
 
-function validateRental(r){
+module.exports.validate = (rental) => {
     const schema = Joi.object().keys({
         customerId: Joi.objectId().required(),
         movieId: Joi.objectId().required()
     });
 
-    const { error } = Joi.validate(r, schema);
+    const { error } = Joi.validate(rental, schema);
     return error ? error.details[0].message : null;
-}
-
-module.exports.Rental = Rental;
-module.exports.validateRental = validateRental;
+};
