@@ -6,6 +6,7 @@ const admin = require('../middleware/admin');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
+    throw new Error('generic error');
     const genres = await Genre.find().sort('name');
     if(!genres || genres.length < 1) return res.status(404).send('no genres to display !');
 
@@ -36,9 +37,11 @@ router.put('/:id', async (req, res) => {
     const err = validate(req.body);
     if(err) return res.status(400).send(err);
 
-    await g.updateOne({ name: req.body.name });
-
-    res.send(g);
+    g.name = req.body.name;
+    g.save(function(err, updatedG){
+        if(err) return res.status(500).send('db update error !');
+        res.send(updatedG);
+    })
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {

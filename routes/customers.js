@@ -17,7 +17,7 @@ router.get('/:id', async (req, res) => {
     res.send(c);
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     const err = validate(req.body);
     if(err) return res.status(400).send(err);
 
