@@ -6,7 +6,7 @@ const admin = require('../middleware/admin');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    throw new Error('generic error');
+    //throw new Error('generic error');
     const genres = await Genre.find().sort('name');
     if(!genres || genres.length < 1) return res.status(404).send('no genres to display !');
 
